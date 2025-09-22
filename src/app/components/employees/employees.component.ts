@@ -34,7 +34,7 @@ export class EmployeesComponent implements OnInit {
     status: ''
   };
 
-  displayMode: 'Table' | 'Div' | 'TableDiv' | 'Card' | 'TableTRTD' = 'Table';
+  displayMode: 'Table' | 'Div' | 'TableDiv' | 'Card' | 'TableTRTD' = 'TableTRTD';
 
   constructor(private dataService: DataService, private route: ActivatedRoute) {}
 
