@@ -1,0 +1,19 @@
+index.html
+header
+    Title
+        if ?page=Home Home
+        if ?page=About About
+        if ?page=Employyes Employee Management
+        if ?page=Departemnts DepartmentManagement 
+        
+    Navigation Menu (Bar)
+        Home
+        About
+        Employees
+        Departments
+sidebar
+    Human Resource
+    Finance
+Main Content
+    If ?page=Home
+    Welcome to Home Page

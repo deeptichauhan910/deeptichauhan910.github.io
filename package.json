@@ -1,0 +1,29 @@
+{
+  "name": "deeptichauhan910-github-io",
+  "version": "1.0.0",
+  "description": "A Node.js server for serving the management system HTML page",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "html",
+    "server",
+    "management-system"
+  ],
+  "author": "deeptichauhan910",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
