@@ -1,0 +1,162 @@
+<div class="profile-container">
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading employee profile...</p>
+  </div>
+
+  <!-- Not Found State -->
+  <div class="not-found-state" *ngIf="notFound">
+    <div class="error-icon">❌</div>
+    <h2>Employee Not Found</h2>
+    <p>The requested employee profile could not be found.</p>
+    <button class="btn btn-primary" routerLink="/Employees">← Back to Employees</button>
+  </div>
+
+  <!-- Profile Content -->
+  <div class="profile-content" *ngIf="employee && !loading">
+    <div class="profile-header">
+      <div class="profile-navigation">
+        <button class="btn btn-secondary" routerLink="/Employees">← Back to Employees</button>
+      </div>
+      
+      <div class="profile-hero">
+        <div class="employee-avatar-large">
+          {{employee.firstName.charAt(0)}}{{employee.lastName.charAt(0)}}
+        </div>
+        <div class="employee-title">
+          <h1>{{employee.firstName}} {{employee.lastName}}</h1>
+          <h2 class="position">{{employee.position}}</h2>
+          <p class="department" *ngIf="department">{{department.name}}</p>
+          <div class="status-container">
+            <span class="status-badge" [ngClass]="'status-' + employee.status.toLowerCase().replace(' ', '-')">
+              {{employee.status}}
+            </span>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button class="btn btn-primary" (click)="editEmployee()">✏️ Edit Profile</button>
+          <button class="btn btn-danger" (click)="deleteEmployee()">🗑️ Delete Employee</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-body">
+      <div class="profile-sections">
+        <!-- Contact Information -->
+        <div class="profile-section">
+          <h3>📞 Contact Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Email:</label>
+              <span><a href="mailto:{{employee.email}}">{{employee.email}}</a></span>
+            </div>
+            <div class="info-item">
+              <label>Phone:</label>
+              <span><a href="tel:{{employee.phone}}">{{employee.phone}}</a></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employment Details -->
+        <div class="profile-section">
+          <h3>💼 Employment Details</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Position:</label>
+              <span class="value">{{employee.position}}</span>
+            </div>
+            <div class="info-item">
+              <label>Department:</label>
+              <span class="value">{{department?.name || 'Unknown'}}</span>
+            </div>
+            <div class="info-item">
+              <label>Salary:</label>
+              <span class="value salary-amount">{{formatCurrency(employee.salary)}}</span>
+            </div>
+            <div class="info-item">
+              <label>Employment Status:</label>
+              <span class="value">
+                <span class="status-badge" [ngClass]="'status-' + employee.status.toLowerCase().replace(' ', '-')">
+                  {{employee.status}}
+                </span>
+              </span>
+            </div>
+            <div class="info-item">
+              <label>Hire Date:</label>
+              <span class="value">{{formatDate(employee.hireDate)}}</span>
+            </div>
+            <div class="info-item">
+              <label>Years of Service:</label>
+              <span class="value">{{getYearsOfService()}} years</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Information -->
+        <div class="profile-section">
+          <h3>📍 Address Information</h3>
+          <div class="address-display">
+            <div class="address-line" *ngIf="employee.address.street">{{employee.address.street}}</div>
+            <div class="address-line" *ngIf="employee.address.city || employee.address.state || employee.address.zipCode">
+              <span *ngIf="employee.address.city">{{employee.address.city}}</span><span *ngIf="employee.address.city && employee.address.state">, </span><span *ngIf="employee.address.state">{{employee.address.state}}</span><span *ngIf="employee.address.zipCode"> {{employee.address.zipCode}}</span>
+            </div>
+            <div class="no-address" *ngIf="!employee.address.street && !employee.address.city">
+              No address information available
+            </div>
+          </div>
+        </div>
+
+        <!-- Department Information -->
+        <div class="profile-section" *ngIf="department">
+          <h3>🏢 Department Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Department:</label>
+              <span class="value">{{department.name}}</span>
+            </div>
+            <div class="info-item">
+              <label>Description:</label>
+              <span class="value">{{department.description}}</span>
+            </div>
+            <div class="info-item">
+              <label>Manager:</label>
+              <span class="value">{{department.manager}}</span>
+            </div>
+            <div class="info-item">
+              <label>Budget:</label>
+              <span class="value">{{formatCurrency(department.budget)}}</span>
+            </div>
+            <div class="info-item">
+              <label>Total Employees:</label>
+              <span class="value">{{department.employeeCount}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Statistics -->
+        <div class="profile-section">
+          <h3>📊 Profile Statistics</h3>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-number">{{getYearsOfService()}}</div>
+              <div class="stat-label">Years of Service</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">{{department?.employeeCount || 0}}</div>
+              <div class="stat-label">Team Members</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">{{formatDate(employee.createdDate)}}</div>
+              <div class="stat-label">Profile Created</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">{{formatDate(employee.updatedDate)}}</div>
+              <div class="stat-label">Last Updated</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

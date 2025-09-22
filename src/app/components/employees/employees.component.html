@@ -1,0 +1,462 @@
+<div class="employee-management">
+  <div class="header-section">
+    <h1>Employee Management</h1>
+    <button class="btn btn-primary" (click)="showAddForm = true">Add New Employee</button>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-controls">
+      <input
+        type="text"
+        placeholder="Search employees..."
+        [(ngModel)]="searchCriteria.searchTerm"
+        (input)="performSearch()"
+        class="search-input"
+      >
+      <select [(ngModel)]="searchCriteria.departmentId" (change)="performSearch()" class="search-select">
+        <option value="">All Departments</option>
+        <option *ngFor="let dept of departments" [value]="dept.id">{{dept.name}}</option>
+      </select>
+      <select [(ngModel)]="searchCriteria.status" (change)="performSearch()" class="search-select">
+        <option value="">All Statuses</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+        <option value="On Leave">On Leave</option>
+      </select>
+      <button class="btn btn-secondary" (click)="clearSearch()">Clear</button>
+    </div>
+  </div>
+
+  <!-- Add/Edit Form Modal -->
+  <div class="modal" *ngIf="showAddForm || showEditForm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>{{editingEmployee ? 'Edit Employee' : 'Add New Employee'}}</h3>
+        <button class="close-btn" (click)="closeForm()">&times;</button>
+      </div>
+      <form (ngSubmit)="saveEmployee()" #employeeForm="ngForm" class="employee-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              [(ngModel)]="currentEmployee.firstName"
+              required
+              class="form-input"
+            >
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              [(ngModel)]="currentEmployee.lastName"
+              required
+              class="form-input"
+            >
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              [(ngModel)]="currentEmployee.email"
+              required
+              class="form-input"
+            >
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              [(ngModel)]="currentEmployee.phone"
+              class="form-input"
+            >
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="departmentId">Department *</label>
+            <select
+              id="departmentId"
+              name="departmentId"
+              [(ngModel)]="currentEmployee.departmentId"
+              required
+              class="form-input"
+            >
+              <option value="">Select Department</option>
+              <option *ngFor="let dept of departments" [value]="dept.id">{{dept.name}}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="position">Position *</label>
+            <input
+              type="text"
+              id="position"
+              name="position"
+              [(ngModel)]="currentEmployee.position"
+              required
+              class="form-input"
+            >
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="salary">Salary *</label>
+            <input
+              type="number"
+              id="salary"
+              name="salary"
+              [(ngModel)]="currentEmployee.salary"
+              required
+              class="form-input"
+            >
+          </div>
+          <div class="form-group">
+            <label for="status">Status *</label>
+            <select
+              id="status"
+              name="status"
+              [(ngModel)]="currentEmployee.status"
+              required
+              class="form-input"
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="On Leave">On Leave</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="hireDate">Hire Date *</label>
+            <input
+              type="date"
+              id="hireDate"
+              name="hireDate"
+              [ngModel]="formatDateForInput(currentEmployee.hireDate)"
+              (ngModelChange)="currentEmployee.hireDate = parseDate($event)"
+              required
+              class="form-input"
+            >
+          </div>
+        </div>
+        <div class="address-section">
+          <h4>Address</h4>
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="street">Street</label>
+              <input
+                type="text"
+                id="street"
+                name="street"
+                [ngModel]="currentEmployee.address?.street || ''"
+                (ngModelChange)="updateAddressField('street', $event)"
+                class="form-input"
+              >
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city">City</label>
+              <input
+                type="text"
+                id="city"
+                name="city"
+                [ngModel]="currentEmployee.address?.city || ''"
+                (ngModelChange)="updateAddressField('city', $event)"
+                class="form-input"
+              >
+            </div>
+            <div class="form-group">
+              <label for="state">State</label>
+              <input
+                type="text"
+                id="state"
+                name="state"
+                [ngModel]="currentEmployee.address?.state || ''"
+                (ngModelChange)="updateAddressField('state', $event)"
+                class="form-input"
+              >
+            </div>
+            <div class="form-group">
+              <label for="zipCode">Zip Code</label>
+              <input
+                type="text"
+                id="zipCode"
+                name="zipCode"
+                [ngModel]="currentEmployee.address?.zipCode || ''"
+                (ngModelChange)="updateAddressField('zipCode', $event)"
+                class="form-input"
+              >
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!employeeForm.form.valid">
+            {{editingEmployee ? 'Update' : 'Create'}}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Employee List -->
+  <div class="employee-list">
+    <div class="list-header">
+      <span>Found {{employeeResult.totalItems}} employee(s)</span>
+      <div class="display-controls">
+        <label for="viewMode">View:</label>
+        <select 
+          id="viewMode"
+          class="view-dropdown" 
+          [(ngModel)]="displayMode"
+          (change)="setDisplayMode(displayMode)"
+        >
+          <option value="Table">📊 Table</option>
+          <option value="Div">📋 Div</option>
+          <option value="TableDiv">📑 TableDiv</option>
+          <option value="TableTRTD">🗂️ TableTRTD</option>
+          <option value="Card">🎴 Card</option>
+        </select>
+      </div>
+      <span>Page {{employeeResult.currentPage}} of {{employeeResult.totalPages}}</span>
+    </div>
+
+    <!-- Table View -->
+    <div class="employee-table" *ngIf="displayMode === 'Table'">
+      <div class="table-header">
+        <div class="col-name">Name</div>
+        <div class="col-email">Email</div>
+        <div class="col-department">Department</div>
+        <div class="col-position">Position</div>
+        <div class="col-status">Status</div>
+        <div class="col-actions">Actions</div>
+      </div>
+      
+              <div class="table-row" *ngFor="let employee of employeeResult.data">
+          <div class="col-name">
+            <a [routerLink]="['/Profile', employee.id]" class="employee-name-link">
+              {{employee.firstName}} {{employee.lastName}}
+            </a>
+          </div>
+          <div class="col-email">{{employee.email}}</div>
+          <div class="col-department">{{getDepartmentName(employee.departmentId)}}</div>
+          <div class="col-position">{{employee.position}}</div>
+          <div class="col-status">
+            <span class="status-badge" [ngClass]="'status-' + employee.status.toLowerCase().replace(' ', '-')">
+              {{employee.status}}
+            </span>
+          </div>
+          <div class="col-actions">
+            <button class="btn btn-sm btn-primary" (click)="editEmployee(employee)">Edit</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteEmployee(employee)">Delete</button>
+          </div>
+        </div>
+    </div>
+
+    <!-- Div View -->
+    <div class="employee-div-list" *ngIf="displayMode === 'Div'">
+      <div class="div-item" *ngFor="let employee of employeeResult.data">
+        <div class="div-content">
+          <div class="employee-name">
+            <a [routerLink]="['/Profile', employee.id]" class="employee-name-link">
+              {{employee.firstName}} {{employee.lastName}}
+            </a>
+          </div>
+          <div class="employee-details">
+            <span class="detail-item"><strong>Email:</strong> {{employee.email}}</span>
+            <span class="detail-item"><strong>Department:</strong> {{getDepartmentName(employee.departmentId)}}</span>
+            <span class="detail-item"><strong>Position:</strong> {{employee.position}}</span>
+            <span class="detail-item"><strong>Phone:</strong> {{employee.phone}}</span>
+            <span class="detail-item"><strong>Salary:</strong> {{formatCurrency(employee.salary)}}</span>
+            <span class="detail-item">
+              <strong>Status:</strong> 
+              <span class="status-badge" [ngClass]="'status-' + employee.status.toLowerCase().replace(' ', '-')">
+                {{employee.status}}
+              </span>
+            </span>
+          </div>
+          <div class="div-actions">
+            <button class="btn btn-sm btn-primary" (click)="editEmployee(employee)">Edit</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteEmployee(employee)">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TableDiv View -->
+    <div class="employee-tablediv" *ngIf="displayMode === 'TableDiv'">
+      <div class="tablediv-item" *ngFor="let employee of employeeResult.data">
+        <table class="employee-details-table">
+          <tr>
+            <td class="label">Name:</td>
+            <td class="value">
+              <a [routerLink]="['/Profile', employee.id]" class="employee-name-link">
+                {{employee.firstName}} {{employee.lastName}}
+              </a>
+            </td>
+            <td class="label">Email:</td>
+            <td class="value">{{employee.email}}</td>
+          </tr>
+          <tr>
+            <td class="label">Department:</td>
+            <td class="value">{{getDepartmentName(employee.departmentId)}}</td>
+            <td class="label">Position:</td>
+            <td class="value">{{employee.position}}</td>
+          </tr>
+          <tr>
+            <td class="label">Phone:</td>
+            <td class="value">{{employee.phone}}</td>
+            <td class="label">Salary:</td>
+            <td class="value">{{formatCurrency(employee.salary)}}</td>
+          </tr>
+          <tr>
+            <td class="label">Status:</td>
+            <td class="value">
+              <span class="status-badge" [ngClass]="'status-' + employee.status.toLowerCase().replace(' ', '-')">
+                {{employee.status}}
+              </span>
+            </td>
+            <td class="label">Actions:</td>
+            <td class="value">
+              <button class="btn btn-sm btn-primary" (click)="editEmployee(employee)">Edit</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteEmployee(employee)">Delete</button>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Card View -->
+    <div class="employee-cards" *ngIf="displayMode === 'Card'">
+      <div class="employee-card" *ngFor="let employee of employeeResult.data">
+        <div class="card-header">
+          <div class="employee-avatar">{{employee.firstName.charAt(0)}}{{employee.lastName.charAt(0)}}</div>
+          <div class="employee-info">
+            <h3>
+              <a [routerLink]="['/Profile', employee.id]" class="employee-name-link card-name-link">
+                {{employee.firstName}} {{employee.lastName}}
+              </a>
+            </h3>
+            <p class="employee-position">{{employee.position}}</p>
+          </div>
+          <div class="employee-status">
+            <span class="status-badge" [ngClass]="'status-' + employee.status.toLowerCase().replace(' ', '-')">
+              {{employee.status}}
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-detail">
+            <span class="icon">📧</span>
+            <span class="text">{{employee.email}}</span>
+          </div>
+          <div class="card-detail">
+            <span class="icon">📞</span>
+            <span class="text">{{employee.phone}}</span>
+          </div>
+          <div class="card-detail">
+            <span class="icon">🏢</span>
+            <span class="text">{{getDepartmentName(employee.departmentId)}}</span>
+          </div>
+          <div class="card-detail">
+            <span class="icon">💰</span>
+            <span class="text">{{formatCurrency(employee.salary)}}</span>
+          </div>
+          <div class="card-detail">
+            <span class="icon">📅</span>
+            <span class="text">Hired: {{formatDate(employee.hireDate)}}</span>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-primary" (click)="editEmployee(employee)">Edit Employee</button>
+          <button class="btn btn-danger" (click)="deleteEmployee(employee)">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TableTRTD View -->
+    <div class="employee-table-trtd" *ngIf="displayMode === 'TableTRTD'">
+      <table class="html-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Position</th>
+            <th>Phone</th>
+            <th>Salary</th>
+            <th>Status</th>
+            <th>Hire Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let employee of employeeResult.data" class="table-data-row">
+            <td class="name-cell">
+              <a [routerLink]="['/Profile', employee.id]" class="employee-name-link">
+                {{employee.firstName}} {{employee.lastName}}
+              </a>
+            </td>
+            <td class="email-cell">{{employee.email}}</td>
+            <td class="department-cell">{{getDepartmentName(employee.departmentId)}}</td>
+            <td class="position-cell">{{employee.position}}</td>
+            <td class="phone-cell">{{employee.phone}}</td>
+            <td class="salary-cell">{{formatCurrency(employee.salary)}}</td>
+            <td class="status-cell">
+              <span class="status-badge" [ngClass]="'status-' + employee.status.toLowerCase().replace(' ', '-')">
+                {{employee.status}}
+              </span>
+            </td>
+            <td class="date-cell">{{formatDate(employee.hireDate)}}</td>
+            <td class="actions-cell">
+              <button class="btn btn-sm btn-primary" (click)="editEmployee(employee)">Edit</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteEmployee(employee)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="employeeResult.totalPages > 1">
+      <button
+        class="btn btn-secondary"
+        [disabled]="employeeResult.currentPage === 1"
+        (click)="goToPage(employeeResult.currentPage - 1)"
+      >
+        Previous
+      </button>
+      
+      <span class="page-numbers">
+        <button
+          *ngFor="let page of getPageNumbers()"
+          class="btn btn-page"
+          [ngClass]="{'active': page === employeeResult.currentPage}"
+          (click)="goToPage(page)"
+        >
+          {{page}}
+        </button>
+      </span>
+      
+      <button
+        class="btn btn-secondary"
+        [disabled]="employeeResult.currentPage === employeeResult.totalPages"
+        (click)="goToPage(employeeResult.currentPage + 1)"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>

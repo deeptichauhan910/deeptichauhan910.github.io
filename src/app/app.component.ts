@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { DataService } from './services/data.service';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +10,12 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="container">
       <header>
-        <div class="title" id="header-title">{{ getPageTitle() }}</div>
+        <div class="header-top">
+          <div class="title" id="header-title">{{ getPageTitle() }}</div>
+          <button class="btn btn-reset" (click)="resetStorage()" title="Reset all data">
+            🔄 Reset
+          </button>
+        </div>
         <nav>
           <ul>
             <li><a routerLink="/Home" routerLinkActive="active">Home</a></li>
@@ -59,10 +65,31 @@ import { CommonModule } from '@angular/common';
       padding: 1rem;
     }
 
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
     .title {
       font-size: 1.5rem;
       font-weight: bold;
-      margin-bottom: 1rem;
+    }
+
+    .btn-reset {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.3s;
+    }
+
+    .btn-reset:hover {
+      background-color: #c0392b;
     }
 
     nav {
@@ -150,11 +177,17 @@ import { CommonModule } from '@angular/common';
         flex-direction: column;
         gap: 0.5rem;
       }
+
+      .header-top {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+      }
     }
   `]
 })
 export class AppComponent {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private dataService: DataService) {}
 
   getPageTitle(): string {
     const url = this.router.url;
@@ -163,5 +196,17 @@ export class AppComponent {
     if (url.includes('/Employees')) return 'Employee Management';
     if (url.includes('/Departments')) return 'Department Management';
     return 'Home';
+  }
+
+  resetStorage(): void {
+    if (confirm('Are you sure you want to reset all data? This will delete all employees and departments and restore sample data. This action cannot be undone.')) {
+      // Clear all management system data from localStorage
+      localStorage.removeItem('management_departments');
+      localStorage.removeItem('management_employees');
+      localStorage.removeItem('management_data_initialized');
+      
+      // Refresh the page to reinitialize with sample data
+      window.location.reload();
+    }
   }
 }
