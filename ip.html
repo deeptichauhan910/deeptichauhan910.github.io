@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h3>Public IP: <span id="ip">Loading...</span></h3>
+
+  <script>
+    fetch('https://api.ipify.org?format=json')
+      .then(r => r.json())
+      .then(d => document.getElementById('ip').textContent = d.ip)
+      .catch(() => document.getElementById('ip').textContent = 'Unavailable');
+  </script>
+</body>
+</html>
