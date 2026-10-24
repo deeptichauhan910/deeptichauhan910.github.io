@@ -1,13 +1,39 @@
+
 <!DOCTYPE html>
 <html>
 <body>
   <h3>Public IP: <span id="ip">Loading...</span></h3>
+
+  <br>
+
+  <h3>Feedback</h3>
+  <form id="feedbackForm">
+    <input
+      type="text"
+      id="feedback"
+      placeholder="Enter your feedback"
+      required
+    />
+    <button type="submit">Submit</button>
+  </form>
+
+  <p id="message" style="color: green; display: none;">
+    Thank you! Your feedback has been submitted successfully.
+  </p>
 
   <script>
     fetch('https://api.ipify.org?format=json')
       .then(r => r.json())
       .then(d => document.getElementById('ip').textContent = d.ip)
       .catch(() => document.getElementById('ip').textContent = 'Unavailable');
+
+    document.getElementById('feedbackForm')
+      .addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        document.getElementById('message').style.display = 'block';
+        document.getElementById('feedback').value = '';
+      });
   </script>
 </body>
 </html>
